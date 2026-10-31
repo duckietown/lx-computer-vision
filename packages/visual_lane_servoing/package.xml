@@ -1,26 +1,19 @@
 <?xml version="1.0"?>
-<package>
+<package format="3">
   <name>visual_lane_servoing</name>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
   <description>The package performs visual servoing on lanes.</description>
-
   <maintainer email="liam@duckietown.com">Liam P</maintainer>
-
   <license>GPLv3</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>duckietown_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>lx_ros2_tools</exec_depend>
+  <exec_depend>encoder_pose</exec_depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>duckietown_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-    <build_depend>image_geometry</build_depend>
-  <run_depend>duckietown_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-    <run_depend>image_geometry</run_depend>
-
-
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
 </package>

@@ -29,6 +29,13 @@ This exercise is meant to be run with the `ente` version of the shell commands. 
 
 - 🚙 Update your Duckiebot: `dts duckiebot update ROBOTNAME` (where `ROBOTNAME` is the name of your (real or virtual - more on this later) Duckiebot chosen during the initialization procedure.)
 
+- 🚙 This exercise runs on **ROS 2** (Jazzy). Bring the ROS 2 stack up on your Duckiebot (real or virtual) once it is booted:
+
+```
+dts stack up -R ROBOTNAME ros2/duckiebot
+dts stack up -R ROBOTNAME ros2-core/default
+```
+
 ## 3. Work on the exercise
 
 
@@ -63,7 +70,7 @@ You can build your code with
 dts code build -R ROBOT_NAME
 ```
 
-This will build a docker image with your code compiled inside - you should see your ROS node get built during the process. 
+This will build a docker image with your code compiled inside - you should see your ROS 2 packages (`visual_lane_servoing`, `encoder_pose`, `lx_ros2_tools`) get built by `colcon` during the process. 
 
 
 ### Testing with Duckiematrix
@@ -88,6 +95,13 @@ You should see it with a status `Booting` and finally `Ready` if you look at `dt
      | Hardware |   Type    | Model |  Status  | Hostname 
 ---  | -------- | --------- | ----- | -------- | ---------
 vbot |  virtual | duckiebot | DB21J |  Ready   | vbot.local
+```
+
+Virtual robots still boot with the ROS 1 stack; start the ROS 2 stack on it explicitly (once per boot):
+
+```
+dts stack up -R [VBOT] ros2/duckiebot
+dts stack up -R [VBOT] ros2-core/default
 ```
 
 Now that your virtual robot is ready you can start the Duckiematrix. From this exercise directory do:
@@ -115,16 +129,38 @@ dts code workbench -R [ROBOT_NAME]
 ```
 
 
-In another terminal, you can launch the `noVNC` viewer for this exercise:
+The workbench runs the ROS 2 nodes of this exercise (`vls_node` and `encoder_pose_node`) in the namespace of your robot, connected to the robot's zenoh router. Leave it running and go back to the code editor (`dts code editor`): the last notebook ([04-Visual-Servoing](./notebooks/04-Visual-Servoing/visual_servoing.ipynb)) contains the control panel of the exercise, built with `ipywidgets`:
+
+- `RosSession(ROBOT)` connects the notebook to your robot;
+- `ActionButtons(ros, "vls_node", ["init", "calibrate", "start", "stop"])` drives the node (these are `std_srvs/Trigger` services);
+- `ParamPanel` lets you change `v_0` (forward speed) and `omega_max` (steering scale) live;
+- `ImageView` shows the camera and the left/right lane-marking masks your code produces;
+- `TrajectoryPlot` draws the odometry estimated from the wheel encoders.
+
+To drive the robot by hand (needed for the `calibrate` step), open a second terminal and run the keyboard control:
 
 ```
-dts code vnc -R [ROBOT_NAME]
+dts duckiebot keyboard_control [ROBOT_NAME]
 ```
 
-where `[ROBOT_NAME]` could be the real or the virtual robot (use whichever you ran the `dts code workbench` and `dts code build` command with).
+### Debugging from the editor terminal
 
-In the noVNC desktop, click on the icon marked "VLS - Visual Lane Servoing Exercise" and then you should follow the prompts
-in the terminal where you ran `dts code workbench`.
+A terminal inside the code editor (`Terminal > New Terminal`) already has ROS 2 set up and, when the `VEHICLE_NAME` environment variable is set (or after the `RosSession(ROBOT)` cell has run), it is connected to the robot's zenoh router. Useful commands:
+
+```
+ros2 node list
+ros2 topic list
+ros2 topic echo /[ROBOT_NAME]/car_cmd_switch_node/cmd
+ros2 param list /[ROBOT_NAME]/vls_node
+ros2 param set /[ROBOT_NAME]/vls_node v_0 0.15
+ros2 service call /[ROBOT_NAME]/vls_node/stop std_srvs/srv/Trigger
+```
+
+**Note**: right after connecting, the ROS graph takes a few seconds to sync through the zenoh router; if a list comes back empty use `ros2 topic list --no-daemon --spin-time 5` (same for `ros2 node list`).
+
+### Troubleshooting
+
+- *The node publishes car commands but the robot does not move*: the `kinematics_node` of your robot may still listen on the older topic `car_cmd` instead of `car_cmd_switch_node/cmd`. Check with `ros2 node info /[ROBOT_NAME]/kinematics_node` and, if so, relaunch the nodes with the topic remapped: `ros2 launch visual_lane_servoing visual_lane_servoing_node.launch.py veh:=[ROBOT_NAME] car_cmd_topic:=car_cmd` (the launcher of `dts code workbench` forwards the environment variable `CAR_CMD_TOPIC=car_cmd` the same way).
 
 Now you can proceed to the [first notebook](./notebooks/01-Pinhole-Camera/pinhole_camera_matrix.ipynb).
 

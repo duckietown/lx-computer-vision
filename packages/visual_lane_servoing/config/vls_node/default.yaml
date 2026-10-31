@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    # forward velocity command [m/s] while the visual servoing runs
+    v_0: 0.2
+    # maximum angular rate [rad/s]: the normalized steering (-1..1) is scaled by this value.
+    # <= 0 means "use omega_max from the kinematics calibration of the robot (2.0 if there is none)"
+    omega_max: -1.0
