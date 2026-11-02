@@ -38,8 +38,8 @@ This exercise is meant to be run with the `ente` version of the shell commands. 
 - 🚙 This exercise runs on **ROS 2** (Jazzy). Bring the ROS 2 stack up on your Duckiebot (real or virtual) once it is booted:
 
 ```
-dts stack up -R ROBOTNAME ros2/duckiebot
-dts stack up -R ROBOTNAME ros2-core/default
+dts stack up -H ROBOTNAME ros2/duckiebot
+dts stack up -H ROBOTNAME ros2-core/default
 ```
 
 ## 3. Calibrate your camera
@@ -108,8 +108,8 @@ You should see it with a status `Booting` and finally `Ready` if you look at `dt
 Virtual robots still boot with the ROS 1 stack; start the ROS 2 stack on it explicitly (once per boot):
 
 ```
-dts stack up -R [VBOT] ros2/duckiebot
-dts stack up -R [VBOT] ros2-core/default
+dts stack up -H [VBOT] ros2/duckiebot
+dts stack up -H [VBOT] ros2-core/default
 ```
 
 Now that your virtual robot is ready you can start the Duckiematrix. From this exercise directory do:
